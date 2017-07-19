@@ -1,7 +1,8 @@
 package com.cristianvalero.chat.servidor.database;
-import com.cristianvalero.chat.servidor.ejcServer;
 import com.cristianvalero.chat.servidor.utils.LogType;
+import com.cristianvalero.chat.servidor.ejcServer;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -29,6 +30,8 @@ public class Database
         this.password = p;
         this.port = port;
     }
+
+    public Database() {}
 
     public String getHost() {
         return host;
@@ -74,6 +77,17 @@ public class Database
         return driver;
     }
 
+    public boolean isConnected()
+    {
+        boolean a = false;
+        try
+        {
+            if (con != null && !con.isClosed()) a = true;
+        }
+        catch (SQLException e) {e.printStackTrace();}
+        return a;
+    }
+
     public static void addToList(Database d)
     {
         connections.add(d);
@@ -81,6 +95,11 @@ public class Database
 
     public Connection getConnection() {
         return this.con;
+    }
+
+    public static List<Database> getActiveConnections()
+    {
+        return connections;
     }
 
     public static Connection getConnection(String databaseName)
@@ -96,6 +115,19 @@ public class Database
         return c;
     }
 
+    public static Database getDatabase(String databaseName)
+    {
+        Database d = null;
+        for (Database db : connections)
+        {
+            if (db.getDatabase().equals(databaseName))
+            {
+                d = db;
+            }
+        }
+        return d;
+    }
+
     public void tryConnection() throws ClassNotFoundException, SQLException
     {
         if (host != null && database != null && username != null && password != null)
@@ -103,6 +135,7 @@ public class Database
             final String url = "jdbc:mysql//"+host+":"+port+"/"+database+"?autoReconect=true";
             Class.forName(driver);
             DriverManager.getConnection(url, username, password);
+            ejcServer.log("Conectado correctamente a MySQL: jdbc:mysql//"+host+":"+port+"/"+database, LogType.MYSQL);
         }
         else
             ejcServer.log("No se puede conectar a la base de datos. No hay datos de conexión (nulos).", LogType.MYSQL);
