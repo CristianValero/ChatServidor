@@ -2,7 +2,6 @@ package com.cristianvalero.chat.servidor.database;
 import com.cristianvalero.chat.servidor.utils.LogType;
 import com.cristianvalero.chat.servidor.ejcServer;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
