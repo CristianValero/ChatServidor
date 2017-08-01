@@ -2,10 +2,11 @@ package com.cristianvalero.chat.servidor.utils;
 
 public enum LogType
 {
-    NORMALLY ("[]"),
+    EMPTY ("[]"),
     WARNING ("[WARNING]"),
     ERROR ("[ALERT/SEVERE]"),
-    MYSQL ("[MYSQL]");
+    MYSQL ("[MYSQL]"),
+    INFO ("[INFO]");
 
     private String prefix;
 
