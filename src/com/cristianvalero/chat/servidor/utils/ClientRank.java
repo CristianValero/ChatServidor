@@ -1,19 +1,23 @@
 package com.cristianvalero.chat.servidor.utils;
 
+import com.sun.istack.internal.NotNull;
+
 public enum ClientRank
 {
-    USER(1, 50),
-    VIP(2, 100),
-    MODERATOR(3, 150),
-    ADMINISTRATOR(4, 200);
+    USER(1, 50, ""),
+    VIP(2, 100, "[VIP]"),
+    MODERATOR(3, 150, "[MODERADOR]"),
+    ADMINISTRATOR(4, 200, "[ADMINISTRADOR]");
 
     private int identifier;
     private int value;
+    private String prefix;
 
-    ClientRank(int id, int value)
+    ClientRank(int id, int value, String prefix)
     {
         this.identifier = id;
         this.value = value;
+        this.prefix = prefix;
     }
 
     public int getId()
@@ -51,5 +55,11 @@ public enum ClientRank
             if (r.getValue() == value) cr = r;
         }
         return cr;
+    }
+
+    public static ClientRank getSuperiorRank(@NotNull ClientRank a, @NotNull ClientRank b)
+    {
+        ClientRank r = null;
+        return r = (a.getValue() > b.getValue()) ? a : b; //resultado = (condicion) ? true : false
     }
 }

@@ -4,8 +4,11 @@ public enum LogType
 {
     EMPTY ("[]"),
     WARNING ("[WARNING]"),
-    ERROR ("[ALERT/SEVERE]"),
+    ERROR ("[ERROR]"),
     MYSQL ("[MYSQL]"),
+    MYSQL_ERROR("[MYSQL/ERROR]"),
+    SERVER("[SERVER]"),
+    SERVER_ERROR("[SERVER/ERROR]"),
     INFO ("[INFO]");
 
     private String prefix;

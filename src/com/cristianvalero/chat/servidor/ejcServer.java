@@ -21,7 +21,8 @@ public class ejcServer
     private static int ACT_LOG_LINES = 0;
     private static int ACT_LOG_ID = 1;
 
-    public static void main(String[] args) throws InterruptedException, SQLException, URISyntaxException {
+    public static void main(String[] args) throws InterruptedException, SQLException, URISyntaxException
+    {
         infoLoad();
         ejcServer.log("Iniciando servidor...", LogType.INFO);
         iniServer();
@@ -49,7 +50,7 @@ public class ejcServer
 
     public static void stopServer() //Aquí debemos terminar todas las conexiones, procesos, hilos, servidores...
     {
-        ejcServer.log("Preparando para apagar el servidor...", LogType.EMPTY);
+        ejcServer.log("Preparando para apagar el servidor...", LogType.INFO);
         for (Database cons : Database.getActiveConnections())
         {
             try
@@ -60,7 +61,8 @@ public class ejcServer
             catch (SQLException e)
             {
                 e.printStackTrace();
-                ejcServer.log("Ha surgido un problema al cerrar la conexión con la base de datos '"+cons.getDatabase()+"'.", LogType.MYSQL);
+                ejcServer.log("Ha surgido un problema al cerrar la conexión con la base de datos '"+cons.getDatabase()+"'.", LogType.MYSQL_ERROR);
+                ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
             }
         }
     }
@@ -75,7 +77,12 @@ public class ejcServer
             dataBaseBasicTables(db);
             Database.addToList(db);
         }
-        catch (ClassNotFoundException | SQLException e){e.printStackTrace();}
+        catch (ClassNotFoundException | SQLException e)
+        {
+            ejcServer.log("Ha ocurrido un error al inicializar la base de datos básica: ", LogType.MYSQL);
+            ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
+            e.printStackTrace();
+        }
     }
 
     private static void dataBaseBasicTables(Database db) throws SQLException
@@ -100,6 +107,7 @@ public class ejcServer
         sv.start();
     }
 
+    //Método encargado de registrar todo aquello que ocurra en el servidor
     public static void log(String txt, LogType type)
     {
         Calendar cal = Calendar.getInstance();
@@ -126,7 +134,12 @@ public class ejcServer
                 ACT_LOG_LINES = 0;
             }
         }
-        catch (URISyntaxException | IOException e) {e.printStackTrace();}
+        catch (URISyntaxException | IOException e)
+        {
+            e.printStackTrace();
+            ejcServer.log("Ha surgido un error escribiendo el log", LogType.ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.ERROR);
+        }
         ACT_LOG_LINES++; //Incrementamos las lineas escritas del log.
     }
 }
