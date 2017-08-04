@@ -21,6 +21,7 @@ public class ejcServer
     private static final float version = 1.0F;
     private static int ACT_LOG_LINES = 0;
     private static int ACT_LOG_ID = 1;
+    private static final String NORMALLY_DATABASE_NAME = "chat_server";
 
     public static void main(String[] args) throws InterruptedException, SQLException, URISyntaxException
     {
@@ -73,7 +74,7 @@ public class ejcServer
         Database db;
         try
         {
-            db = new Database("localhost", "chat_server", "root", "", 3306);
+            db = new Database("localhost", NORMALLY_DATABASE_NAME, "root", "", 3306);
             db.tryConnection();
             dataBaseBasicTables(db);
             Database.addToList(db);
@@ -91,7 +92,7 @@ public class ejcServer
         ejcServer.log("Iniciando comprobación de tablas en la base de datos '"+db.getDatabase()+"'.", LogType.MYSQL);
         List<String> orders = new ArrayList<String>();
         orders.add("CREATE TABLE IF NOT EXISTS usuarios ( id INT PRIMARY KEY AUTO_INCREMENT, " +
-                   "nombre VARCHAR(150), email VARCHAR(150), passwd VARCHAR(150) ) Engine=InnoDB;");
+                   "nombre VARCHAR(150), ip VARCHAR(50), email VARCHAR(150), passwd VARCHAR(150) ) Engine=InnoDB;");
         orders.add("CREATE TABLE IF NOT EXISTS estads ( id INT PRIMARY KEY AUTO_INCREMENT, " +
                    "nombre VARCHAR(150), mensajesEnviados INT, vecesLogueado INT, rango INT ) Engine=InnoDB;");
         for (String order : orders)
@@ -142,5 +143,9 @@ public class ejcServer
             ejcServer.log(" - "+e.getMessage(), LogType.ERROR);
         }
         ACT_LOG_LINES++; //Incrementamos las lineas escritas del log.
+    }
+
+    public static String getNormallyDatabaseName() {
+        return NORMALLY_DATABASE_NAME;
     }
 }

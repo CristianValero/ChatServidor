@@ -11,6 +11,7 @@ public class ClientData
 
     private String name = "";
     private String email = "";
+    private String passwd = "";
     private String ip = "";
     private int messagesSent = 0;
     private int timesLoggedIn = 0;
@@ -24,6 +25,8 @@ public class ClientData
         this.messagesSent = messagesSent;
         this.timesLoggedIn = timesLoggedIn;
     }
+
+    public ClientData() {}
 
     public static void addClientData(ClientData cd) {
         if (clientsData.containsKey(cd.getName()))
@@ -91,5 +94,13 @@ public class ClientData
 
     public ClientRank getRank() {
         return this.rank;
+    }
+
+    public String getPasswd() {
+        return passwd;
+    }
+
+    public void setPasswd(String passwd) {
+        this.passwd = passwd;
     }
 }

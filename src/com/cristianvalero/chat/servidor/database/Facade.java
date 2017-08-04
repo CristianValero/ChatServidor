@@ -8,4 +8,6 @@ public class Facade
     {
         return DigestUtils.sha1Hex(DigestUtils.md5Hex(normalPassword));
     }
+
+
 }
