@@ -1,5 +1,7 @@
 package com.cristianvalero.chat.servidor.database;
 
+import com.cristianvalero.chat.servidor.utils.ClientRank;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +14,7 @@ public class ClientData
     private String ip = "";
     private int messagesSent = 0;
     private int timesLoggedIn = 0;
+    private ClientRank rank = null;
 
     public ClientData(String name, String email, String ip, int messagesSent, int timesLoggedIn)
     {
@@ -80,5 +83,13 @@ public class ClientData
 
     public void setTimesLoggedIn(int timesLoggedIn) {
         this.timesLoggedIn = timesLoggedIn;
+    }
+
+    public void setRank(ClientRank r) {
+        this.rank = r;
+    }
+
+    public ClientRank getRank() {
+        return this.rank;
     }
 }

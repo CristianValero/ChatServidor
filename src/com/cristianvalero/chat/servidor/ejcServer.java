@@ -1,6 +1,7 @@
 package com.cristianvalero.chat.servidor;
 
 import com.cristianvalero.chat.servidor.database.Database;
+import com.cristianvalero.chat.servidor.database.Facade;
 import com.cristianvalero.chat.servidor.process.Server;
 import com.cristianvalero.chat.servidor.utils.LogType;
 
@@ -27,8 +28,8 @@ public class ejcServer
         ejcServer.log("Iniciando servidor...", LogType.INFO);
         iniServer();
         ejcServer.log("Iniciando conexión a MySQL...", LogType.MYSQL);
-        //dataBaseBasicTables(new Database("localhost", "pepito", "root", "", 3306));
-        //dataBaseBasic();
+        dataBaseBasicTables(new Database("localhost", "pepito", "root", "", 3306));
+        dataBaseBasic();
     }
 
     private static void infoLoad() throws InterruptedException
@@ -72,7 +73,7 @@ public class ejcServer
         Database db;
         try
         {
-            db = new Database("localhost", "", "root", "", 3306);
+            db = new Database("localhost", "chat_server", "root", "", 3306);
             db.tryConnection();
             dataBaseBasicTables(db);
             Database.addToList(db);
@@ -92,7 +93,7 @@ public class ejcServer
         orders.add("CREATE TABLE IF NOT EXISTS usuarios ( id INT PRIMARY KEY AUTO_INCREMENT, " +
                    "nombre VARCHAR(150), email VARCHAR(150), passwd VARCHAR(150) ) Engine=InnoDB;");
         orders.add("CREATE TABLE IF NOT EXISTS estads ( id INT PRIMARY KEY AUTO_INCREMENT, " +
-                   "nombre VARCHAR(150), mensajesEnviados INT, vecesLogueado INT ) Engine=InnoDB;");
+                   "nombre VARCHAR(150), mensajesEnviados INT, vecesLogueado INT, rango INT ) Engine=InnoDB;");
         for (String order : orders)
         {
             db.getConnection().prepareStatement(order).execute();

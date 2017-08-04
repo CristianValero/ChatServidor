@@ -30,6 +30,10 @@ public enum ClientRank
         return this.value;
     }
 
+    public String getPrefix() {
+        return this.prefix;
+    }
+
     public boolean isSuperiorThan(ClientRank r)
     {
         boolean a = false;
