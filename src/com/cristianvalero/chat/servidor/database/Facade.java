@@ -13,31 +13,46 @@ public class Facade extends DAO
 
     public static Collection<ClientData> getAllUsers() //Get temp Collection of ClientDats from Database
     {
-        return Facade.getAllUsersDatabase();
+        return DAO.getAllUsersDatabase();
     }
 
     public static boolean equalsPasswd(String email, String pass) //Check if X password is correct from X user
     {
-        return Facade.equalsPassword(email, pass);
+        return DAO.equalsPassword(email, pass);
     }
 
     public static boolean nicknameExists(String nick)
     {
-        return Facade.checkNickname(nick);
+        return DAO.checkNickname(nick);
     }
 
     public static boolean emailExists(String email)
     {
-        return Facade.checkEmail(email);
+        return DAO.checkEmail(email);
     }
 
     public static void removeUserFromDatabase(String email)
     {
-        Facade.removeUser(email);
+        DAO.removeUser(email);
     }
 
     public static void registerUserToDatabase(String name, String email, String passwd, String ip)
     {
         Facade.registerUser(name, email, passwd, ip);
+    }
+
+    public static void changeUserPassword(String email, String newPasswd)
+    {
+        DAO.changeUserPassword(email, newPasswd);
+    }
+
+    public static void changeUserNickname(String email, String newNickname)
+    {
+        DAO.changeUserNickname(email, newNickname);
+    }
+
+    public static void saveUserOnDatabase(ClientData cd)
+    {
+        DAO.saveChangesFromUser(cd);
     }
 }

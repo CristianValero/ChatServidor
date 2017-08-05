@@ -41,8 +41,10 @@ public class ejcServer
         ejcServer.log("Desarrollado por: Cristian Valero Abundio", LogType.INFO);
         ejcServer.log("Twitter: @titianvalero", LogType.INFO);
         ejcServer.log("-----------------------------------------------------------------------------------", LogType.INFO);
+
         Thread.sleep(2000);
         ejcServer.log("Por su seguridad, el servidor iniciará en 10 segundos...", LogType.INFO);
+
         for (int i=9; i>0; i--)
         {
             ejcServer.log("El servidor iniciará en "+i+" segundos.", LogType.INFO);
@@ -71,10 +73,9 @@ public class ejcServer
 
     private static void dataBaseBasic()
     {
-        Database db;
         try
         {
-            db = new Database("localhost", NORMALLY_DATABASE_NAME, "root", "", 3306);
+            Database db = new Database("localhost", NORMALLY_DATABASE_NAME, "root", "", 3306);
             db.tryConnection();
             dataBaseBasicTables(db);
             Database.addToList(db);
@@ -87,20 +88,20 @@ public class ejcServer
         }
     }
 
-    private static void dataBaseBasicTables(Database db) throws SQLException
+    private static void dataBaseBasicTables(Database db) throws SQLException //El email es un dato que JAMÁS debe variar por seguridad.
     {
         ejcServer.log("Iniciando comprobación de tablas en la base de datos '"+db.getDatabase()+"'.", LogType.MYSQL);
         List<String> orders = new ArrayList<String>();
 
         orders.add("CREATE TABLE IF NOT EXISTS usuarios ( id INT PRIMARY KEY AUTO_INCREMENT, " +
-                   "nombre VARCHAR(150), ip VARCHAR(50), email VARCHAR(150), passwd VARCHAR(150) ) Engine=InnoDB;");
+                   "email VARCHAR(150), ip VARCHAR(50), nick VARCHAR(150), passwd VARCHAR(150) ) Engine=InnoDB;");
         orders.add("CREATE TABLE IF NOT EXISTS estads ( id INT PRIMARY KEY AUTO_INCREMENT, " +
-                   "nombre VARCHAR(150), mensajesEnviados INT, vecesLogueado INT, rango INT ) Engine=InnoDB;");
+                   "email VARCHAR(150), mensajes_enviados INT, veces_logueado INT, rango INT ) Engine=InnoDB;");
         orders.add("CREATE TABLE IF NOT EXISTS messages (id INT PRIMARY KEY AUTO_INCREMENT, " +
-                   "send_by VARCHAR (150), message LONGTEXT, hour TIME, day DATE ) Engine=InnoDB;");
+                   "send_by_email VARCHAR (150), message LONGTEXT, hour TIME, day DATE ) Engine=InnoDB;");
         orders.add("CREATE TABLE IF NOT EXISTS banList (id INT PRIMARY KEY AUTO_INCREMENT, " +
-                "banned_nick VARCHAR (150), banned_ip VARCHAR(150), banned_by VARCHAR(150), banMessage TEXT, hour TIME, " +
-                "day DATE ) Engine=InnoDB;");
+                   "banned_email VARCHAR (150), banned_ip VARCHAR(150), banned_by_email VARCHAR(150), banMessage TEXT, hour TIME, " +
+                   "day DATE ) Engine=InnoDB;");
 
         for (String order : orders)
         {
@@ -122,10 +123,9 @@ public class ejcServer
         Calendar cal = Calendar.getInstance();
         String generated = type.getPrefix()+" ["+cal.get(Calendar.HOUR)+":"+
                            cal.get(Calendar.MINUTE)+":"+cal.get(Calendar.SECOND)+"] "+txt;
-        System.out.println(generated); //[LogType] [HH:MM:SS] Log message....
         try
         {
-            //Obtenemos la ruta donde se está ejecutando nuestro programa
+            //Obtenemos la ruta donde se está ejecutando nuestro programa (OJO, MEJOR QUE SE EJECUTE DENTRO DE UNA CARPETA)
             final String programPath = new File(ejcServer.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent();
             //Le damos una ruta a el constructor file con el nombre de nuestra carpeta para log, en este caso la fecha actual
             File logPath = new File(programPath+"//logs//"+(cal.get(Calendar.DATE)+"-"+cal.get(Calendar.MONTH)+"-"+cal.get(Calendar.YEAR)));
@@ -142,11 +142,12 @@ public class ejcServer
                 ACT_LOG_ID++;
                 ACT_LOG_LINES = 0;
             }
+            System.out.println(generated); //[LogType] [HH:MM:SS] Log message....
         }
         catch (URISyntaxException | IOException e)
         {
             e.printStackTrace();
-            ejcServer.log("Ha surgido un error escribiendo el log", LogType.ERROR);
+            ejcServer.log("Ha surgido un error escribiendo el registro (log)", LogType.ERROR);
             ejcServer.log(" - "+e.getMessage(), LogType.ERROR);
         }
         ACT_LOG_LINES++; //Incrementamos las lineas escritas del log.

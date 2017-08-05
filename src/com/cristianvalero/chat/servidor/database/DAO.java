@@ -28,15 +28,18 @@ public class DAO //Data Access Object
 
             while (resQueryUsuarios.next() && resQueryDataUsuarios.next())
             {
-                ClientData cd = new ClientData();
-                cd.setName(resQueryUsuarios.getString("name"));
-                cd.setEmail(resQueryUsuarios.getString("email"));
-                cd.setIp(resQueryUsuarios.getString("ip"));
-                cd.setPasswd(resQueryUsuarios.getString("passwd"));
-                cd.setMessagesSent(resQueryDataUsuarios.getInt("mensajesEnviados"));
-                cd.setTimesLoggedIn(resQueryDataUsuarios.getInt("vecesLogueado"));
-                cd.setRank(ClientRank.getRankWithId(resQueryDataUsuarios.getInt("rango")));
-                v.add(cd);
+                if (resQueryUsuarios.getString("email").equals(resQueryDataUsuarios.getString("email")))
+                {
+                    ClientData cd = new ClientData();
+                    cd.setName(resQueryUsuarios.getString("name"));
+                    cd.setEmail(resQueryUsuarios.getString("email"));
+                    cd.setIp(resQueryUsuarios.getString("ip"));
+                    cd.setPasswd(resQueryUsuarios.getString("passwd"));
+                    cd.setMessagesSent(resQueryDataUsuarios.getInt("mensajesEnviados"));
+                    cd.setTimesLoggedIn(resQueryDataUsuarios.getInt("vecesLogueado"));
+                    cd.setRank(ClientRank.getRankWithId(resQueryDataUsuarios.getInt("rango")));
+                    v.add(cd);
+                }
             }
         }
         catch (SQLException e)
@@ -139,10 +142,10 @@ public class DAO //Data Access Object
     {
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
 
-        final String regUserOnUsers = "INSERT INTO usuarios ( nombre, ip, email, passwd ) " +
+        final String regUserOnUsers = "INSERT INTO usuarios ( email, ip, nombre, passwd ) " +
                                       "VALUES ('"+name+"', '"+ip+"', '"+email+"', '"+passwd+"');";
-        final String regUserOnEstads = "INSERT INTO estads ( nombre, mensajesEnviados, vecesLogueado, rango ) " +
-                                       "VALUES ( '"+name+"', 0, 0, "+ClientRank.USER.getId()+" );";
+        final String regUserOnEstads = "INSERT INTO estads ( email, mensajes_enviados, veces_logueado, rango ) " +
+                                       "VALUES ( '"+email+"', 0, 0, "+ClientRank.USER.getId()+" );";
 
         try
         {
@@ -153,6 +156,61 @@ public class DAO //Data Access Object
         {
             e.printStackTrace();
             ejcServer.log("Ha ocurrido un error registrando datos de usuarios en la base de datos '"+ejcServer.getNormallyDatabaseName()+"'.", LogType.MYSQL_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
+        }
+    }
+
+    protected static void changeUserPassword(@NotNull String email, @NotNull String newPasswd)
+    {
+        Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
+
+        final String updateStatement = "UPDATE usuarios SET passwd = '"+newPasswd+"' WHERE email = '"+email+"';";
+
+        try
+        {
+            con.prepareStatement(updateStatement).executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            ejcServer.log("Ha ocurrido un error actualizando datos de usuarios en la base de datos '"+ejcServer.getNormallyDatabaseName()+"'.", LogType.MYSQL_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
+        }
+    }
+
+    protected static void changeUserNickname(@NotNull String email, @NotNull String newNick)
+    {
+        Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
+
+        final String updateStatement = "UPDATE usuarios SET nombre = '"+newNick+"' WHERE email = '"+email+"';";
+
+        try
+        {
+            con.prepareStatement(updateStatement).executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            ejcServer.log("Ha ocurrido un error actualizando datos de usuarios en la base de datos '"+ejcServer.getNormallyDatabaseName()+"'.", LogType.MYSQL_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
+        }
+    }
+
+    protected static void saveChangesFromUser(ClientData cd)
+    {
+        Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
+
+        final String updateStatement = "UPDATE estads SET mensajes_enviados = "+cd.getMessagesSent()+", "+
+                                       "veces_logueado = "+cd.getTimesLoggedIn()+";";
+
+        try
+        {
+            con.prepareStatement(updateStatement).executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            ejcServer.log("Ha ocurrido un error actualizando datos de usuarios en la base de datos '"+ejcServer.getNormallyDatabaseName()+"'.", LogType.MYSQL_ERROR);
             ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
         }
     }
