@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Vector;
 
-public class DAO //Data access object
+public class DAO //Data Access Object
 {
     protected static Collection<ClientData> getAllUsersDatabase()
     {
@@ -91,7 +91,6 @@ public class DAO //Data access object
             ejcServer.log("Ha ocurrido un error obteniendo datos de usuarios en la base de datos '"+ejcServer.getNormallyDatabaseName()+"'.", LogType.MYSQL_ERROR);
             ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
         }
-
         return a;
     }
 
@@ -115,7 +114,46 @@ public class DAO //Data access object
             ejcServer.log("Ha ocurrido un error obteniendo datos de usuarios en la base de datos '"+ejcServer.getNormallyDatabaseName()+"'.", LogType.MYSQL_ERROR);
             ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
         }
-
         return a;
+    }
+
+    protected static void removeUser(@NotNull String email)
+    {
+        Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
+
+        final String deleteExecute = "DELECTE FROM usuarios WHERE email = '"+email+"';";
+
+        try
+        {
+            con.prepareStatement(deleteExecute).execute();
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            ejcServer.log("Ha ocurrido un error obteniendo datos de usuarios en la base de datos '"+ejcServer.getNormallyDatabaseName()+"'.", LogType.MYSQL_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
+        }
+    }
+
+    protected static void registerUser(@NotNull String name, @NotNull String email, @NotNull String passwd, @NotNull String ip)
+    {
+        Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
+
+        final String regUserOnUsers = "INSERT INTO usuarios ( nombre, ip, email, passwd ) " +
+                                      "VALUES ('"+name+"', '"+ip+"', '"+email+"', '"+passwd+"');";
+        final String regUserOnEstads = "INSERT INTO estads ( nombre, mensajesEnviados, vecesLogueado, rango ) " +
+                                       "VALUES ( '"+name+"', 0, 0, "+ClientRank.USER.getId()+" );";
+
+        try
+        {
+            con.prepareStatement(regUserOnUsers).execute();
+            con.prepareStatement(regUserOnEstads).execute();
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            ejcServer.log("Ha ocurrido un error registrando datos de usuarios en la base de datos '"+ejcServer.getNormallyDatabaseName()+"'.", LogType.MYSQL_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
+        }
     }
 }

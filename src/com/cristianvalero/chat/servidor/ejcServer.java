@@ -91,10 +91,17 @@ public class ejcServer
     {
         ejcServer.log("Iniciando comprobación de tablas en la base de datos '"+db.getDatabase()+"'.", LogType.MYSQL);
         List<String> orders = new ArrayList<String>();
+
         orders.add("CREATE TABLE IF NOT EXISTS usuarios ( id INT PRIMARY KEY AUTO_INCREMENT, " +
                    "nombre VARCHAR(150), ip VARCHAR(50), email VARCHAR(150), passwd VARCHAR(150) ) Engine=InnoDB;");
         orders.add("CREATE TABLE IF NOT EXISTS estads ( id INT PRIMARY KEY AUTO_INCREMENT, " +
                    "nombre VARCHAR(150), mensajesEnviados INT, vecesLogueado INT, rango INT ) Engine=InnoDB;");
+        orders.add("CREATE TABLE IF NOT EXISTS messages (id INT PRIMARY KEY AUTO_INCREMENT, " +
+                   "send_by VARCHAR (150), message LONGTEXT, hour TIME, day DATE ) Engine=InnoDB;");
+        orders.add("CREATE TABLE IF NOT EXISTS banList (id INT PRIMARY KEY AUTO_INCREMENT, " +
+                "banned_nick VARCHAR (150), banned_ip VARCHAR(150), banned_by VARCHAR(150), banMessage TEXT, hour TIME, " +
+                "day DATE ) Engine=InnoDB;");
+
         for (String order : orders)
         {
             db.getConnection().prepareStatement(order).execute();

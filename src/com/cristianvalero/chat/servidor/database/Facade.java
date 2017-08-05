@@ -30,4 +30,14 @@ public class Facade extends DAO
     {
         return Facade.checkEmail(email);
     }
+
+    public static void removeUserFromDatabase(String email)
+    {
+        Facade.removeUser(email);
+    }
+
+    public static void registerUserToDatabase(String name, String email, String passwd, String ip)
+    {
+        Facade.registerUser(name, email, passwd, ip);
+    }
 }
