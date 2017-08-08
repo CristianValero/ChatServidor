@@ -37,7 +37,8 @@ public enum ClientRank
     public boolean isSuperiorThan(ClientRank r)
     {
         boolean a = false;
-        if (this.value > r.getValue()) a = true;
+        if (this.value > r.getValue())
+            a = true;
         return a;
     }
 
@@ -45,9 +46,7 @@ public enum ClientRank
     {
         ClientRank cr = null;
         for (ClientRank r : values())
-        {
             if (r.getId() == id) cr = r;
-        }
         return cr;
     }
 
@@ -55,9 +54,7 @@ public enum ClientRank
     {
         ClientRank cr = null;
         for (ClientRank r : values())
-        {
             if (r.getValue() == value) cr = r;
-        }
         return cr;
     }
 

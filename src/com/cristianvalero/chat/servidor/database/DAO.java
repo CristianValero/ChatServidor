@@ -35,8 +35,8 @@ public class DAO //Data Access Object
                     cd.setEmail(resQueryUsuarios.getString("email"));
                     cd.setIp(resQueryUsuarios.getString("ip"));
                     cd.setPasswd(resQueryUsuarios.getString("passwd"));
-                    cd.setMessagesSent(resQueryDataUsuarios.getInt("mensajesEnviados"));
-                    cd.setTimesLoggedIn(resQueryDataUsuarios.getInt("vecesLogueado"));
+                    cd.setMessagesSent(resQueryDataUsuarios.getInt("mensajes_enviados"));
+                    cd.setTimesLoggedIn(resQueryDataUsuarios.getInt("veces_logueado"));
                     cd.setRank(ClientRank.getRankWithId(resQueryDataUsuarios.getInt("rango")));
                     v.add(cd);
                 }

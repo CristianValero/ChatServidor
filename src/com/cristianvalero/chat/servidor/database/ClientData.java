@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class ClientData
 {
-    private static HashMap<String, ClientData> clientsData = new HashMap<>();
+    private static HashMap<String, ClientData> clientsData = new HashMap<>(); //<email, ClientData>
 
     private String name = "";
     private String email = "";
