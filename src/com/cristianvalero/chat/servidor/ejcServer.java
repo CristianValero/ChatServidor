@@ -5,12 +5,9 @@ import com.cristianvalero.chat.servidor.database.Facade;
 import com.cristianvalero.chat.servidor.process.Server;
 import com.cristianvalero.chat.servidor.utils.LogType;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
-import java.sql.Connection;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,18 +22,60 @@ public class ejcServer
 
     public static void main(String[] args) throws InterruptedException, SQLException, URISyntaxException
     {
+        securityOnLoad();
         infoLoad();
         ejcServer.log("Iniciando servidor...", LogType.INFO);
         iniServer();
         ejcServer.log("Iniciando conexión a MySQL...", LogType.MYSQL);
-        dataBaseBasicTables(new Database("localhost", "pepito", "root", "", 3306));
-        dataBaseBasic();
+        dataBaseNormal();
+    }
+
+    public static void securityOnLoad()
+    {
+        BufferedReader br = null;
+        try
+        {
+            URL whatismyip = new URL("http://checkip.amazonaws.com"); //Esta web devuelve una línea en blanco con la dirección IP pública del solicitante.
+            br = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+
+            final String IP = br.readLine();
+
+            ejcServer.log("El servidor está corriendo en la IP: "+IP+Server.getServerRunningPort(), LogType.INFO);
+
+            for (String allowedRunAdress : Facade.getAllowedRunServerAdress())
+            {
+                if (IP.equals(allowedRunAdress))
+                {
+                    ejcServer.log("¡EL SERVIDOR ESTÁ CORRIENDO EN UNA DIRECCIÓN IP NO PERMITIDA!", LogType.ERROR);
+                    ejcServer.log("Se ha registrado la incidencia. Ahora el servidor se apagará.", LogType.ERROR);
+                    System.exit(-1); //System.exit(-1) Significa salida forzosa por error.
+                    break;
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            ejcServer.log("¡Ha ocurrido un problema con la lectura de una URL!", LogType.SERVER_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
+        }
+        finally
+        {
+            try { br.close(); }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+                ejcServer.log("No se ha podido cerrar la lectura de datos (BufferedReader):", LogType.SERVER_ERROR);
+                ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
+            }
+        }
     }
 
     private static void infoLoad() throws InterruptedException
     {
         ejcServer.log("-----------------------------------------------------------------------------------", LogType.INFO);
         ejcServer.log("¡EL SERVIDOR (JAR) DEBE INICIARSE DENTRO DE UNA CARPETA PARA MEJOR RENDIMIENTO!", LogType.WARNING);
+        ejcServer.log("El log funciona en sistema de hora PM: "+version, LogType.INFO);
         ejcServer.log("Versión del servidor: "+version, LogType.INFO);
         ejcServer.log("Desarrollado por: Cristian Valero Abundio", LogType.INFO);
         ejcServer.log("Twitter: @titianvalero", LogType.INFO);
@@ -71,13 +110,13 @@ public class ejcServer
         }
     }
 
-    private static void dataBaseBasic()
+    private static void dataBaseNormal()
     {
         try
         {
             Database db = new Database("localhost", NORMALLY_DATABASE_NAME, "root", "", 3306);
             db.tryConnection();
-            dataBaseBasicTables(db);
+            checkNormalDatabaseTables(db);
             Database.addToList(db);
         }
         catch (ClassNotFoundException | SQLException e)
@@ -88,7 +127,7 @@ public class ejcServer
         }
     }
 
-    private static void dataBaseBasicTables(Database db) throws SQLException //El email es un dato que JAMÁS debe variar por seguridad.
+    private static void checkNormalDatabaseTables(Database db) throws SQLException //El email es un dato que JAMÁS debe variar por motivos de seguridad.
     {
         ejcServer.log("Iniciando comprobación de tablas en la base de datos '"+db.getDatabase()+"'.", LogType.MYSQL);
         List<String> orders = new ArrayList<String>();
@@ -128,11 +167,11 @@ public class ejcServer
             //Obtenemos la ruta donde se está ejecutando nuestro programa (OJO, MEJOR QUE SE EJECUTE DENTRO DE UNA CARPETA)
             final String programPath = new File(ejcServer.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParent();
             //Le damos una ruta a el constructor file con el nombre de nuestra carpeta para log, en este caso la fecha actual
-            File logPath = new File(programPath+"//logs//"+(cal.get(Calendar.DATE)+"-"+cal.get(Calendar.MONTH)+"-"+cal.get(Calendar.YEAR)));
+            File logPath = new File(programPath+"//logs//"+(cal.get(Calendar.DATE)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+cal.get(Calendar.YEAR)));
             if (!logPath.exists())
                 logPath.mkdirs(); //Si nuestra carpeta que almacenará los logs no existe, la creamos ;)
             //Ahora creamos una nueva ruta con el nombre del log correspondiente
-            final String actLogPath = programPath+"//logs//"+(cal.get(Calendar.DATE)+"-"+cal.get(Calendar.MONTH)+"-"+cal.get(Calendar.YEAR))+"//"+ACT_LOG_ID+".txt";
+            final String actLogPath = programPath+"//logs//"+(cal.get(Calendar.DATE)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+cal.get(Calendar.YEAR))+"//"+ACT_LOG_ID+".txt"; //
             BufferedWriter writer = new BufferedWriter(new FileWriter(actLogPath,true));
             writer.write(generated+"\n"); //Escribimos el log
             writer.close();

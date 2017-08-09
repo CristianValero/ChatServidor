@@ -3,8 +3,6 @@ package com.cristianvalero.chat.servidor.process;
 import com.cristianvalero.chat.servidor.ejcServer;
 import com.cristianvalero.chat.servidor.utils.LogType;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,8 +22,9 @@ public class Server extends Thread
         {
             try
             {
-                Socket socket = serverSocket.accept();
+                Socket socket = serverSocket.accept(); //Aceptamos cualquier conexión que recibamos.
                 SESSION_ID++;
+
                 final String id = SESSION_ID+"/"+socket.getRemoteSocketAddress().toString();
 
                 ejcServer.log("Se ha conectado un cliente: "+id, LogType.INFO);
@@ -47,6 +46,7 @@ public class Server extends Thread
         try
         {
             serverSocket = new ServerSocket(PORT);
+            ejcServer.log("El servidor está encendido. Se encuentra disponible para recibir y procesar peticiones.", LogType.SERVER);
         }
         catch (IOException e)
         {
@@ -54,5 +54,10 @@ public class Server extends Thread
             ejcServer.log("Ha ocurrido un error al iniciar el servidor:", LogType.SERVER_ERROR);
             ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
         }
+    }
+
+    public static int getServerRunningPort()
+    {
+        return Server.PORT;
     }
 }

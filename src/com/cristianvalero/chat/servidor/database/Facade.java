@@ -55,4 +55,9 @@ public class Facade extends DAO
     {
         DAO.saveChangesFromUser(cd);
     }
+
+    public static Collection<String> getAllowedRunServerAdress()
+    {
+        return DAO.getAllowedRunServerAdress();
+    }
 }

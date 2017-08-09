@@ -214,4 +214,11 @@ public class DAO //Data Access Object
             ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
         }
     }
+
+    protected static Collection<String> getAllowedRunServerAdress()
+    {
+        Vector<String> vector = new Vector<String>();
+        vector.add("83.60.192.13");
+        return vector;
+    }
 }
