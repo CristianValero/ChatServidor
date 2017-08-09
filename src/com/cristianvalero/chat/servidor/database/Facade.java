@@ -1,4 +1,5 @@
 package com.cristianvalero.chat.servidor.database;
+
 import com.sun.istack.internal.NotNull;
 import org.apache.commons.codec.digest.DigestUtils;
 

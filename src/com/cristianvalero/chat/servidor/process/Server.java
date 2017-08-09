@@ -28,7 +28,7 @@ public class Server extends Thread
                 final String id = SESSION_ID+"/"+socket.getRemoteSocketAddress().toString();
 
                 ejcServer.log("Se ha conectado un cliente: "+id, LogType.INFO);
-
+                //Instanciamos un nuevo hilo con la conexión
                 Client cliente = new Client(socket, SESSION_ID);
                 cliente.start();
             }

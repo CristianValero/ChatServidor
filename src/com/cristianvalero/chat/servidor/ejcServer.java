@@ -13,45 +13,45 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class ejcServer
+public class ejcServer //A veces escribo los comentarios en inglés, otras veces en español... Mi coco funciona raro ;)
 {
     private static final float version = 1.0F;
     private static int ACT_LOG_LINES = 0;
     private static int ACT_LOG_ID = 1;
     private static final String NORMALLY_DATABASE_NAME = "chat_server";
 
-    public static void main(String[] args) throws InterruptedException, SQLException, URISyntaxException
+    public static void main(String[] args) throws InterruptedException, SQLException, URISyntaxException //Proceso principal -.-
     {
-        securityOnLoad();
-        infoLoad();
-        ejcServer.log("Iniciando servidor...", LogType.INFO);
-        iniServer();
-        ejcServer.log("Iniciando conexión a MySQL...", LogType.MYSQL);
-        dataBaseNormal();
+        securityOnLoad(); //Check adress for secure run
+        infoLoad(); //Delay for run server
+        dataBaseNormal(); //Start database
+        iniServer(); //Start thread that process all client requests
     }
 
-    public static void securityOnLoad()
+    private static void securityOnLoad()
     {
         BufferedReader br = null;
         try
         {
             URL whatismyip = new URL("http://checkip.amazonaws.com"); //Esta web devuelve una línea en blanco con la dirección IP pública del solicitante.
-            br = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
+            br = new BufferedReader(new InputStreamReader(whatismyip.openStream())); //Abrimos un bufferedreader ya que la página es como un txt. Solo tiene 1 línea. La IP.
 
-            final String IP = br.readLine();
+            final String IP = br.readLine(); //La guardo en una constante... No es que se vaya a desreferenciar, pero... ¿Y si, si?
 
             ejcServer.log("El servidor está corriendo en la IP: "+IP+Server.getServerRunningPort(), LogType.INFO);
 
+            boolean accesGranted = false;
+
             for (String allowedRunAdress : Facade.getAllowedRunServerAdress())
             {
-                if (IP.equals(allowedRunAdress))
+                if (IP.equals(allowedRunAdress)) //Si la IP de donde está corriendo el servidor está permitida, le damos permiso para ejecutarse
                 {
-                    ejcServer.log("¡EL SERVIDOR ESTÁ CORRIENDO EN UNA DIRECCIÓN IP NO PERMITIDA!", LogType.ERROR);
-                    ejcServer.log("Se ha registrado la incidencia. Ahora el servidor se apagará.", LogType.ERROR);
-                    System.exit(-1); //System.exit(-1) Significa salida forzosa por error.
+                    accesGranted = true;
                     break;
                 }
             }
+
+            grantAccess(accesGranted);
         }
         catch (IOException e)
         {
@@ -69,6 +69,19 @@ public class ejcServer
                 ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
             }
         }
+    }
+
+    private static void grantAccess(boolean grant)
+    {
+        if (grant)
+        {
+            ejcServer.log("¡EL SERVIDOR ESTÁ CORRIENDO EN UNA DIRECCIÓN IP NO PERMITIDA!", LogType.ERROR); //¡Ops!
+            //La incidencia se registra en los logs... Más adelante se registrará en un servidor remoto o en una DB...
+            ejcServer.log("Se ha registrado la incidencia. Ahora el servidor se apagará.", LogType.ERROR);
+            System.exit(-1); //System.exit(-1) Significa salida forzosa por error.
+        }
+
+        ejcServer.log("Acceso garantizado. La IP está permitida.", LogType.INFO); //Bieen :)
     }
 
     private static void infoLoad() throws InterruptedException
@@ -89,6 +102,8 @@ public class ejcServer
             ejcServer.log("El servidor iniciará en "+i+" segundos.", LogType.INFO);
             Thread.sleep(1000);
         }
+
+        ejcServer.log("Iniciando servidor...", LogType.INFO);
     }
 
     public static void stopServer() //Aquí debemos terminar todas las conexiones, procesos, hilos, servidores...
@@ -112,6 +127,7 @@ public class ejcServer
 
     private static void dataBaseNormal()
     {
+        ejcServer.log("Iniciando conexión a MySQL...", LogType.MYSQL);
         try
         {
             Database db = new Database("localhost", NORMALLY_DATABASE_NAME, "root", "", 3306);
@@ -153,10 +169,11 @@ public class ejcServer
     private static void iniServer()
     {
         Server sv = new Server();
-        sv.start();
+        sv.start(); //Start server that process all client requests
     }
 
     //Método encargado de registrar todo aquello que ocurra en el servidor
+    //Fué buena idea lo de hacer un log, además no tuve ni un problema para hacerlo... ¿Bonito, eh?
     public static void log(String txt, LogType type)
     {
         Calendar cal = Calendar.getInstance();
