@@ -146,6 +146,7 @@ public class ejcServer //A veces escribo los comentarios en inglés, otras veces
     private static void checkNormalDatabaseTables(Database db) throws SQLException //El email es un dato que JAMÁS debe variar por motivos de seguridad.
     {
         ejcServer.log("Iniciando comprobación de tablas en la base de datos '"+db.getDatabase()+"'.", LogType.MYSQL);
+
         List<String> orders = new ArrayList<String>();
 
         orders.add("CREATE TABLE IF NOT EXISTS usuarios ( id INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -157,11 +158,14 @@ public class ejcServer //A veces escribo los comentarios en inglés, otras veces
         orders.add("CREATE TABLE IF NOT EXISTS banList (id INT PRIMARY KEY AUTO_INCREMENT, " +
                    "banned_email VARCHAR (150), banned_ip VARCHAR(150), banned_by_email VARCHAR(150), banMessage TEXT, hour TIME, " +
                    "day DATE ) Engine=InnoDB;");
+        orders.add("CREATE TABLE IF NOT EXISTS adress_blacklist (id INT PRIMARY KEY AUTO_INCREMENT, " +
+                   "adress VARCHAR (150) ) Engine=InnoDB;");
 
         for (String order : orders)
         {
-            db.getConnection().prepareStatement(order).execute();
             ejcServer.log("Iniciando comprobación de la tabla '"+order.substring((order.indexOf('S')+4), (order.indexOf('(')-1))+"' en la base de datos '"+db.getDatabase()+"'.", LogType.MYSQL);
+            db.getConnection().prepareStatement(order).execute();
+            ejcServer.log("Tabla '"+order.substring((order.indexOf('S')+4), (order.indexOf('(')-1))+"' de la base de datos '"+db.getDatabase()+"' correcta.", LogType.MYSQL);
         }
         orders.clear();
     }

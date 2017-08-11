@@ -13,9 +13,12 @@ public class ClientData
     private String email = "";
     private String passwd = "";
     private String ip = "";
+
     private int messagesSent = 0;
     private int timesLoggedIn = 0;
+
     private ClientRank rank = null;
+    private Thread hilo = null;
 
     public ClientData(String name, String email, String ip, int messagesSent, int timesLoggedIn)
     {
@@ -102,5 +105,13 @@ public class ClientData
 
     public void setPasswd(String passwd) {
         this.passwd = passwd;
+    }
+
+    public Thread getHilo() {
+        return hilo;
+    }
+
+    public void setHilo(Thread hilo) {
+        this.hilo = hilo;
     }
 }

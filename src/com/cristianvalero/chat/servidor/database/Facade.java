@@ -61,4 +61,9 @@ public class Facade extends DAO
     {
         return DAO.getAllowedRunServerAdress();
     }
+
+    public static Collection<String> getDeniedClientAdress()
+    {
+        return DAO.getDeniedClientAdress();
+    }
 }

@@ -18,7 +18,7 @@ public class Server extends Thread
     {
         init();
 
-        while (true)
+        while (!serverSocket.isClosed())
         {
             try
             {
