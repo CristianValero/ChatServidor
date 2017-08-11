@@ -3,6 +3,7 @@ package com.cristianvalero.chat.servidor.process;
 import com.cristianvalero.chat.servidor.database.Facade;
 import com.cristianvalero.chat.servidor.ejcServer;
 import com.cristianvalero.chat.servidor.utils.LogType;
+import com.cristianvalero.chat.servidor.utils.ServerMessages;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -18,6 +19,7 @@ public class Client extends Thread
     private DataInputStream dis = null;
 
     private String atribute = null;
+    private boolean accesGranted = true;
 
     public Client(Socket socket, int ID)
     {
@@ -46,13 +48,26 @@ public class Client extends Thread
     {
         checkClient();
 
-        while (!socket.isClosed())
+        if (accesGranted)
         {
+            this.sendUTF(ServerMessages.ACCES_GRANTED);
 
+            switch (getServerMessage())
+            {
+                case LOGIN_ATTEMPT:
+                    break;
+                case REGISTER_ATTEMPT:
+                    break;
+            }
+        }
+        else
+        {
+            this.sendUTF(ServerMessages.ACCES_DENIED);
+            this.close();
         }
     }
-    //Sería mejor si... Mandamos antes un mensaje de desconexión para que el cliente pueda procesar la solicitud y no arrojar un error.
-    private void checkClient() //Esto será temporal... No quiero que sea programado de esta forma
+
+    private void checkClient()
     {
         ejcServer.log("Iniciando comprobación de seguirdad para el cliente: '"+atribute+"'...", LogType.INFO);
 
@@ -61,9 +76,8 @@ public class Client extends Thread
             if (socket.getRemoteSocketAddress().toString().equals(deniedAdress))
             {
                 ejcServer.log("El cliente "+atribute+" utiliza una dirección IP que está en blacklist.", LogType.WARNING);
-                this.close();
                 ejcServer.log("Se ha denegado el acceso al cliente "+atribute, LogType.WARNING);
-
+                accesGranted = false;
                 break;
             }
         }
@@ -73,14 +87,59 @@ public class Client extends Thread
     {
         try
         {
-            socket.close(); //Cerramos la conexión socket
-            this.interrupt(); //Interrumpimos la ejecución del hilo que contiene el cliente
+            socket.close();
+            this.interrupt();
         }
         catch (IOException e)
         {
             e.printStackTrace();
             ejcServer.log("Ha ocurrido un error al desconectar el cliente: "+atribute, LogType.SERVER_ERROR);
             ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
+        }
+    }
+
+    public int getClientID()
+    {
+        return CLIENT_ID;
+    }
+
+    public Socket getSocket()
+    {
+        return socket;
+    }
+
+    public String getAtribute()
+    {
+        return atribute;
+    }
+
+    public ServerMessages getServerMessage()
+    {
+        ServerMessages sv = null;
+        try {
+            final String msg = dis.readUTF();
+            sv = ServerMessages.getServerMessage(msg);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sv;
+    }
+
+    public void sendUTF(ServerMessages a)
+    {
+        try {
+            dos.writeUTF(a.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendInt(int a)
+    {
+        try {
+            dos.writeInt(a);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
