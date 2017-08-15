@@ -1,5 +1,6 @@
 package com.cristianvalero.chat.servidor.process;
 
+import com.cristianvalero.chat.servidor.database.ClientData;
 import com.cristianvalero.chat.servidor.database.Facade;
 import com.cristianvalero.chat.servidor.ejcServer;
 import com.cristianvalero.chat.servidor.utils.LogType;
@@ -20,6 +21,9 @@ public class Client extends Thread
 
     private String atribute = null;
     private boolean accesGranted = true;
+    private boolean isLogged = false;
+
+    private ClientData clientData = null;
 
     Client(Socket socket, int ID)
     {
@@ -57,12 +61,16 @@ public class Client extends Thread
                 switch (getServerMessage())
                 {
                     case LOGIN_ATTEMPT:
+                        login();
                         break;
                     case REGISTER_ATTEMPT:
+                        register();
                         break;
                     case SEND_MESSAGE:
+                        reciveMessage();
                         break;
                     case SEND_COMMAND:
+                        reciveCommand();
                         break;
                     default:
                         break;
@@ -92,6 +100,46 @@ public class Client extends Thread
         }
     }
 
+    private void login()
+    {
+        final String recivedEmail = getUTF();
+        final String recivedPasswd = getUTF();
+
+        if (Facade.emailExists(recivedEmail))
+            if (Facade.equalsPasswd(recivedEmail, recivedPasswd))
+            {
+                sendUTF(ServerMessages.CORRECT_PASSWORD);
+                isLogged = true;
+
+                this.clientData = Facade.getUser(recivedEmail); //Instanciamos la variable clientdata
+                this.clientData.setHilo(this); //Le asignamos su hilo en ejecución
+                ClientData.addClientData(this.clientData); //Lo añadimos al hashmap contenedor de clientdats.
+            }
+        else
+            sendUTF(ServerMessages.WRONG_EMAIL);
+    }
+
+    private void register()
+    {
+
+    }
+
+    private void reciveMessage()
+    {
+
+    }
+
+    private void reciveCommand()
+    {
+
+    }
+
+    private void unknownCommand()
+    {
+        ejcServer.log("Se han recibido datos sin cabecera imposibles de procesar del cliente: "+atribute, LogType.ERROR);
+        ejcServer.log("Dato corrupto del cliente ("+atribute+"): "+getUTF(), LogType.ERROR);
+    }
+
     private void checkClient()
     {
         ejcServer.log("Iniciando comprobación de seguirdad para el cliente: '"+atribute+"'...", LogType.INFO);
@@ -113,6 +161,7 @@ public class Client extends Thread
         try
         {
             socket.close();
+            ClientData.removeClientData(this.clientData.getEmail());
             this.interrupt();
         }
         catch (IOException e)
@@ -144,28 +193,44 @@ public class Client extends Thread
         try {
             final String msg = dis.readUTF();
             sv = ServerMessages.getServerMessage(msg);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
+            ejcServer.log("Ha ocurrido un error al recibir datos del cliente: "+atribute, LogType.SERVER_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
         }
         return sv;
     }
 
-    public void sendUTF(ServerMessages a)
+    public String getUTF()
     {
-        try {
-            dos.writeUTF(a.getMessage());
-            dos.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+        String get = null;
+        try
+        {
+            get = dis.readUTF();
         }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            ejcServer.log("Ha ocurrido un error al recibir datos del cliente: "+atribute, LogType.SERVER_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
+        }
+        return get;
     }
 
-    public void sendInt(int a)
+    public void sendUTF(ServerMessages a)
     {
-        try {
-            dos.writeInt(a);
-        } catch (IOException e) {
+        try
+        {
+            dos.writeUTF(a.getMessage());
+            dos.flush();
+        }
+        catch (IOException e)
+        {
             e.printStackTrace();
+            ejcServer.log("Ha ocurrido un error al recibir datos del cliente: "+atribute, LogType.SERVER_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
         }
     }
 }

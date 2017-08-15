@@ -154,7 +154,7 @@ public class ejcServer //A veces escribo los comentarios en inglés, otras veces
         orders.add("CREATE TABLE IF NOT EXISTS estads ( id INT PRIMARY KEY AUTO_INCREMENT, " +
                    "email VARCHAR(150), mensajes_enviados INT, veces_logueado INT, rango INT ) Engine=InnoDB;");
         orders.add("CREATE TABLE IF NOT EXISTS messages (id INT PRIMARY KEY AUTO_INCREMENT, " +
-                   "send_by_email VARCHAR (150), message LONGTEXT, hour TIME, day DATE ) Engine=InnoDB;");
+                   "send_by_email VARCHAR (150), message LONGTEXT, varchar HOUR, VARCHAR(50) DATE ) Engine=InnoDB;");
         orders.add("CREATE TABLE IF NOT EXISTS banList (id INT PRIMARY KEY AUTO_INCREMENT, " +
                    "banned_email VARCHAR (150), banned_ip VARCHAR(150), banned_by_email VARCHAR(150), banMessage TEXT, hour TIME, " +
                    "day DATE ) Engine=InnoDB;");
@@ -181,7 +181,7 @@ public class ejcServer //A veces escribo los comentarios en inglés, otras veces
     public static void log(String txt, LogType type)
     {
         Calendar cal = Calendar.getInstance();
-        String generated = type.getPrefix()+" ["+cal.get(Calendar.HOUR)+":"+
+        final String generated = type.getPrefix()+" ["+cal.get(Calendar.HOUR)+":"+
                            cal.get(Calendar.MINUTE)+":"+cal.get(Calendar.SECOND)+"] "+txt;
         try
         {

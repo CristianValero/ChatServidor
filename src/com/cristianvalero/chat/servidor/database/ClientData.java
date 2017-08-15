@@ -36,14 +36,14 @@ public class ClientData
             clientsData.put(cd.getName(), cd);
     }
 
-    public static void removeClientData(String name) {
-        clientsData.remove(name);
+    public static void removeClientData(String email) {
+        clientsData.remove(email);
     }
 
-    public static ClientData getClientData(String name) {
+    public static ClientData getClientData(String email) {
         ClientData clientData = null;
         for (Map.Entry<String, ClientData> entry : clientsData.entrySet())
-            if (entry.getKey().equals(name)) clientData = entry.getValue();
+            if (entry.getKey().equals(email)) clientData = entry.getValue();
         return clientData;
     }
 

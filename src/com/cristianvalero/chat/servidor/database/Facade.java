@@ -5,7 +5,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.Collection;
 
-public class Facade extends DAO
+public class Facade
 {
     public static String encryptPassword(@NotNull String normalPassword) //Your password is safe ;)
     {
@@ -15,6 +15,11 @@ public class Facade extends DAO
     public static Collection<ClientData> getAllUsers() //Get temp Collection of ClientDats from Database
     {
         return DAO.getAllUsersDatabase();
+    }
+
+    public static ClientData getUser(String email)
+    {
+        return DAO.getUserFromDatabase(email);
     }
 
     public static boolean equalsPasswd(String email, String pass) //Check if X password is correct from X user
@@ -39,7 +44,7 @@ public class Facade extends DAO
 
     public static void registerUserToDatabase(String name, String email, String passwd, String ip)
     {
-        Facade.registerUser(name, email, passwd, ip);
+        DAO.registerUser(name, email, passwd, ip);
     }
 
     public static void changeUserPassword(String email, String newPasswd)

@@ -13,7 +13,7 @@ import java.util.Vector;
 
 public class DAO //Data Access Object
 {
-    protected static Collection<ClientData> getAllUsersDatabase()
+    public static Collection<ClientData> getAllUsersDatabase()
     {
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
         Vector<ClientData> v = new Vector<>();
@@ -54,7 +54,47 @@ public class DAO //Data Access Object
         return v;
     }
 
-    protected static boolean equalsPassword(@NotNull String email, @NotNull String pass)
+    public static ClientData getUserFromDatabase(@NotNull String email)
+    {
+        Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
+        ClientData cd = null;
+
+        final String queryUsuarios = "SELECT * FROM usuarios WHERE email = '"+email+"';";
+        final String queryDataUsuarios = "SELECT * FROM estads WHERE email = '"+email+"';";
+
+        try
+        {
+            ResultSet resQueryUsuarios = con.prepareStatement(queryUsuarios).executeQuery();
+            ResultSet resQueryDataUsuarios = con.prepareStatement(queryDataUsuarios).executeQuery();
+
+            if (resQueryUsuarios.next() && resQueryDataUsuarios.next())
+            {
+                if (resQueryUsuarios.getString("email").equals(resQueryDataUsuarios.getString("email")))
+                {
+                    cd = new ClientData();
+                    cd.setName(resQueryUsuarios.getString("name"));
+                    cd.setEmail(resQueryUsuarios.getString("email"));
+                    cd.setIp(resQueryUsuarios.getString("ip"));
+                    cd.setPasswd(resQueryUsuarios.getString("passwd"));
+                    cd.setMessagesSent(resQueryDataUsuarios.getInt("mensajes_enviados"));
+                    cd.setTimesLoggedIn(resQueryDataUsuarios.getInt("veces_logueado"));
+                    cd.setRank(ClientRank.getRankWithId(resQueryDataUsuarios.getInt("rango")));
+                }
+            }
+
+            resQueryDataUsuarios.close();
+            resQueryUsuarios.close();
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            ejcServer.log("Ha ocurrido un error obteniendo datos de usuarios en la base de datos '"+ejcServer.getNormallyDatabaseName()+"'.", LogType.MYSQL_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.MYSQL_ERROR);
+        }
+        return cd;
+    }
+
+    public static boolean equalsPassword(@NotNull String email, @NotNull String pass)
     {
         boolean a = false;
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
@@ -79,7 +119,7 @@ public class DAO //Data Access Object
         return a;
     }
 
-    protected static boolean checkNickname(@NotNull String name)
+    public static boolean checkNickname(@NotNull String name)
     {
         boolean a = false;
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
@@ -104,7 +144,7 @@ public class DAO //Data Access Object
         return a;
     }
 
-    protected static boolean checkEmail(@NotNull String email)
+    public static boolean checkEmail(@NotNull String email)
     {
         boolean a = false;
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
@@ -127,7 +167,7 @@ public class DAO //Data Access Object
         return a;
     }
 
-    protected static void removeUser(@NotNull String email)
+    public static void removeUser(@NotNull String email)
     {
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
 
@@ -145,7 +185,7 @@ public class DAO //Data Access Object
         }
     }
 
-    protected static void registerUser(@NotNull String name, @NotNull String email, @NotNull String passwd, @NotNull String ip)
+    public static void registerUser(@NotNull String name, @NotNull String email, @NotNull String passwd, @NotNull String ip)
     {
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
 
@@ -167,7 +207,7 @@ public class DAO //Data Access Object
         }
     }
 
-    protected static void changeUserPassword(@NotNull String email, @NotNull String newPasswd)
+    public static void changeUserPassword(@NotNull String email, @NotNull String newPasswd)
     {
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
 
@@ -185,7 +225,7 @@ public class DAO //Data Access Object
         }
     }
 
-    protected static void changeUserNickname(@NotNull String email, @NotNull String newNick)
+    public static void changeUserNickname(@NotNull String email, @NotNull String newNick)
     {
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
 
@@ -203,7 +243,7 @@ public class DAO //Data Access Object
         }
     }
 
-    protected static void saveChangesFromUser(ClientData cd)
+    public static void saveChangesFromUser(ClientData cd)
     {
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
 
@@ -222,14 +262,14 @@ public class DAO //Data Access Object
         }
     }
 
-    protected static Collection<String> getAllowedRunServerAdress()
+    public static Collection<String> getAllowedRunServerAdress()
     {
-        Vector<String> vector = new Vector<String>();
+        Vector<String> vector = new Vector<String>(); //No hacer en base de datos... Por seguridad ;)
         vector.add("83.60.192.13");
         return vector;
     }
 
-    protected static Collection<String> getDeniedClientAdress()
+    public static Collection<String> getDeniedClientAdress()
     {
         Connection con = Database.getConnection(ejcServer.getNormallyDatabaseName());
         Vector<String> vector = new Vector<String>();
