@@ -21,7 +21,7 @@ public class Client extends Thread
     private String atribute = null;
     private boolean accesGranted = true;
 
-    public Client(Socket socket, int ID)
+    Client(Socket socket, int ID)
     {
         this.socket = socket;
         this.CLIENT_ID = ID;
@@ -52,18 +52,43 @@ public class Client extends Thread
         {
             this.sendUTF(ServerMessages.ACCES_GRANTED);
 
-            switch (getServerMessage())
+            while (!socket.isClosed())
             {
-                case LOGIN_ATTEMPT:
-                    break;
-                case REGISTER_ATTEMPT:
-                    break;
+                switch (getServerMessage())
+                {
+                    case LOGIN_ATTEMPT:
+                        break;
+                    case REGISTER_ATTEMPT:
+                        break;
+                    case SEND_MESSAGE:
+                        break;
+                    case SEND_COMMAND:
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         else
         {
             this.sendUTF(ServerMessages.ACCES_DENIED);
+            pause(10);
             this.close();
+        }
+    }
+
+    private void pause(int seconds)
+    {
+        try
+        {
+            sleep(seconds*1000);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+
+            ejcServer.log("Ha ocurrido un error pausando un hilo (Client-Thread)...", LogType.SERVER_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
         }
     }
 
@@ -129,6 +154,7 @@ public class Client extends Thread
     {
         try {
             dos.writeUTF(a.getMessage());
+            dos.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
