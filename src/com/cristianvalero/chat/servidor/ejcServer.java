@@ -4,14 +4,15 @@ import com.cristianvalero.chat.servidor.database.Database;
 import com.cristianvalero.chat.servidor.database.Facade;
 import com.cristianvalero.chat.servidor.process.Server;
 import com.cristianvalero.chat.servidor.utils.LogType;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class ejcServer //A veces escribo los comentarios en inglés, otras veces en español... Mi coco funciona raro ;)
 {
@@ -156,7 +157,7 @@ public class ejcServer //A veces escribo los comentarios en inglés, otras veces
         orders.add("CREATE TABLE IF NOT EXISTS messages (id INT PRIMARY KEY AUTO_INCREMENT, " +
                    "send_by_email VARCHAR (150), message LONGTEXT, varchar HOUR, VARCHAR(50) DATE ) Engine=InnoDB;");
         orders.add("CREATE TABLE IF NOT EXISTS banList (id INT PRIMARY KEY AUTO_INCREMENT, " +
-                   "banned_email VARCHAR (150), banned_ip VARCHAR(150), banned_by_email VARCHAR(150), banMessage TEXT, hour TIME, " +
+                   "banned_email VARCHAR (150), banned_ip VARCHAR(150), banned_by_email VARCHAR(150), ban_message TEXT, hour TIME, " +
                    "day DATE ) Engine=InnoDB;");
         orders.add("CREATE TABLE IF NOT EXISTS adress_blacklist (id INT PRIMARY KEY AUTO_INCREMENT, " +
                    "adress VARCHAR (150) ) Engine=InnoDB;");
@@ -194,7 +195,8 @@ public class ejcServer //A veces escribo los comentarios en inglés, otras veces
             //Ahora creamos una nueva ruta con el nombre del log correspondiente
             final String actLogPath = programPath+"//logs//"+(cal.get(Calendar.DATE)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+cal.get(Calendar.YEAR))+"//"+ACT_LOG_ID+".txt"; //
             BufferedWriter writer = new BufferedWriter(new FileWriter(actLogPath,true));
-            writer.write(generated+"\n"); //Escribimos el log
+            //writer.write(generated+"\n"); //Escribimos el log
+            writer.write(Base64.getEncoder().encodeToString(generated.getBytes())+"\n"); //Lo codificamos por si las moscas
             writer.close();
             if (ACT_LOG_LINES > 1000)
             {

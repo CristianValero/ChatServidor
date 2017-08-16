@@ -2,7 +2,7 @@ package com.cristianvalero.chat.servidor.utils;
 
 public enum LogType
 {
-    EMPTY ("[]"),
+    //EMPTY ("[]"),
     WARNING ("[WARNING]"),
     ERROR ("[ERROR]"),
     MYSQL ("[MYSQL]"),

@@ -1,5 +1,6 @@
 package com.cristianvalero.chat.servidor.database;
 
+import com.cristianvalero.chat.servidor.process.Client;
 import com.cristianvalero.chat.servidor.utils.ClientRank;
 
 import java.util.HashMap;
@@ -18,7 +19,7 @@ public class ClientData
     private int timesLoggedIn = 0;
 
     private ClientRank rank = null;
-    private Thread hilo = null;
+    private Client hilo = null;
 
     public ClientData(String name, String email, String ip, int messagesSent, int timesLoggedIn)
     {
@@ -107,11 +108,11 @@ public class ClientData
         this.passwd = passwd;
     }
 
-    public Thread getHilo() {
+    public Client getHilo() {
         return hilo;
     }
 
-    public void setHilo(Thread hilo) {
+    public void setHilo(Client hilo) {
         this.hilo = hilo;
     }
 }

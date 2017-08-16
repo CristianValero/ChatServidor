@@ -5,11 +5,13 @@ import com.cristianvalero.chat.servidor.database.Facade;
 import com.cristianvalero.chat.servidor.ejcServer;
 import com.cristianvalero.chat.servidor.utils.LogType;
 import com.cristianvalero.chat.servidor.utils.ServerMessages;
+import com.sun.istack.internal.NotNull;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Map;
 
 public class Client extends Thread
 {
@@ -25,7 +27,7 @@ public class Client extends Thread
 
     private ClientData clientData = null;
 
-    Client(Socket socket, int ID)
+    Client(Socket socket, int ID) //Constructor... Hacemos alguna cosilla que otra.
     {
         this.socket = socket;
         this.CLIENT_ID = ID;
@@ -48,7 +50,7 @@ public class Client extends Thread
     }
 
     @Override
-    public void run()
+    public void run() //Proceso principal
     {
         checkClient();
 
@@ -69,10 +71,11 @@ public class Client extends Thread
                     case SEND_MESSAGE:
                         reciveMessage();
                         break;
-                    case SEND_COMMAND:
-                        reciveCommand();
+                    case SEND_COMMAND: //Para futuras implementaciones
+                        //reciveCommand();
                         break;
                     default:
+                        unknownCommand();
                         break;
                 }
             }
@@ -89,7 +92,7 @@ public class Client extends Thread
     {
         try
         {
-            sleep(seconds*1000);
+            sleep(seconds * 1000);
         }
         catch (InterruptedException e)
         {
@@ -119,19 +122,33 @@ public class Client extends Thread
             sendUTF(ServerMessages.WRONG_EMAIL);
     }
 
-    private void register()
+    private void register() //Luego del registro, el cliente debe pasar al LoginWindow
     {
+        final String recivedEmail = getUTF();
+        final String recivedPasswd = getUTF();
+        final String recivedNickname = getUTF();
 
+        if (!Facade.emailExists(recivedEmail)) //Si el email no está en uso
+        {
+            if (!Facade.nicknameExists(recivedNickname)) //Si el nickname no está en uso
+            {
+                Facade.registerUserToDatabase(recivedNickname, recivedEmail, recivedPasswd, socket.getRemoteSocketAddress().toString()); //Lo registramos
+                sendUTF(ServerMessages.REGISTER_CORRECT); //Mandamos el OKEY
+                ejcServer.log("Se ha registrado un usuario correctamente con el email: "+recivedEmail, LogType.INFO); //Guardamos un registro
+            }
+            else
+                sendUTF(ServerMessages.NICKNAME_ON_USE);
+        }
+        else
+            sendUTF(ServerMessages.EMAIL_ON_USE);
     }
 
     private void reciveMessage()
     {
-
-    }
-
-    private void reciveCommand()
-    {
-
+        final String recivedMsg = getUTF();
+        final String msgFormat = this.clientData.getName()+": "+recivedMsg;
+        Facade.registerMessage(recivedMsg, this.clientData.getEmail());
+        broadcastMessage(ServerMessages.SEND_MESSAGE, msgFormat);
     }
 
     private void unknownCommand()
@@ -156,7 +173,7 @@ public class Client extends Thread
         }
     }
 
-    public void close()
+    private void close()
     {
         try
         {
@@ -187,10 +204,11 @@ public class Client extends Thread
         return atribute;
     }
 
-    public ServerMessages getServerMessage()
+    private ServerMessages getServerMessage()
     {
         ServerMessages sv = null;
-        try {
+        try
+        {
             final String msg = dis.readUTF();
             sv = ServerMessages.getServerMessage(msg);
         }
@@ -203,7 +221,7 @@ public class Client extends Thread
         return sv;
     }
 
-    public String getUTF()
+    private String getUTF()
     {
         String get = null;
         try
@@ -219,7 +237,7 @@ public class Client extends Thread
         return get;
     }
 
-    public void sendUTF(ServerMessages a)
+    private void sendUTF(ServerMessages a)
     {
         try
         {
@@ -231,6 +249,30 @@ public class Client extends Thread
             e.printStackTrace();
             ejcServer.log("Ha ocurrido un error al recibir datos del cliente: "+atribute, LogType.SERVER_ERROR);
             ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
+        }
+    }
+
+    private void sendNormalUTF(String txt)
+    {
+        try
+        {
+            dos.writeUTF(txt);
+            dos.flush();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            ejcServer.log("Ha ocurrido un error al recibir datos del cliente: "+atribute, LogType.SERVER_ERROR);
+            ejcServer.log(" - "+e.getMessage(), LogType.SERVER_ERROR);
+        }
+    }
+
+    public static void broadcastMessage(@NotNull ServerMessages svmsgs, @NotNull String txt)
+    {
+        for (Map.Entry<String, ClientData> entry : ClientData.getClientsData().entrySet())
+        {
+            entry.getValue().getHilo().sendUTF(svmsgs);
+            entry.getValue().getHilo().sendNormalUTF(txt);
         }
     }
 }

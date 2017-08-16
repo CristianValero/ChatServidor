@@ -3,6 +3,7 @@ package com.cristianvalero.chat.servidor.database;
 import com.sun.istack.internal.NotNull;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.Base64;
 import java.util.Collection;
 
 public class Facade
@@ -10,6 +11,21 @@ public class Facade
     public static String encryptPassword(@NotNull String normalPassword) //Your password is safe ;)
     {
         return DigestUtils.sha1Hex(DigestUtils.md5Hex(normalPassword));
+    }
+
+    public static void registerMessage(String message, String senderEmail)
+    {
+        DTO.registerMessage(message, senderEmail);
+    }
+
+    public static String getBase64Encoder(String toEncode)
+    {
+        return Base64.getEncoder().encodeToString(toEncode.getBytes());
+    }
+
+    public static String getBase64Decoder(String toDecode)
+    {
+        return new String(Base64.getDecoder().decode(toDecode.getBytes()));
     }
 
     public static Collection<ClientData> getAllUsers() //Get temp Collection of ClientDats from Database
@@ -39,27 +55,27 @@ public class Facade
 
     public static void removeUserFromDatabase(String email)
     {
-        DAO.removeUser(email);
+        DTO.removeUser(email);
     }
 
     public static void registerUserToDatabase(String name, String email, String passwd, String ip)
     {
-        DAO.registerUser(name, email, passwd, ip);
+        DTO.registerUser(name, email, passwd, ip);
     }
 
     public static void changeUserPassword(String email, String newPasswd)
     {
-        DAO.changeUserPassword(email, newPasswd);
+        DTO.changeUserPassword(email, newPasswd);
     }
 
     public static void changeUserNickname(String email, String newNickname)
     {
-        DAO.changeUserNickname(email, newNickname);
+        DTO.changeUserNickname(email, newNickname);
     }
 
     public static void saveUserOnDatabase(ClientData cd)
     {
-        DAO.saveChangesFromUser(cd);
+        DTO.saveChangesFromUser(cd);
     }
 
     public static Collection<String> getAllowedRunServerAdress()
